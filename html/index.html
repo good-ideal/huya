@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.staticfile.org/element-plus/2.2.5/theme-chalk/index.css"
+    />
+    <style>
+      #app {
+        width: 800px;
+        margin: 0 auto;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- <h1>虎粮领取</h1> -->
+      <el-row>
+        <el-table :data="tableData">
+          <el-table-column prop="qq" label="QQ" width="180" />
+          <el-table-column prop="pwd" label="密码" width="180" />
+          <el-table-column fixed="right" label="操作" width="120">
+            <template v-slot="scope">
+              <el-button
+                link
+                type="primary"
+                size="small"
+                @click="handleClick(scope.row)"
+                >编辑</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-row>
+
+      <!-- 编辑 -->
+
+      <el-dialog v-model="dialogVisible" title="编辑" width="52%" center>
+        <el-form :inline="true" :model="rowData" class="demo-form-inline">
+          <el-form-item label="QQ">
+            <el-input v-model="rowData.qq" placeholder="QQ"></el-input>
+          </el-form-item>
+          <el-form-item label="密码">
+            <el-input v-model="rowData.pwd" placeholder="密码"></el-input>
+          </el-form-item>
+        </el-form>
+        <el-divider content-position="left">赠送虎粮房间列表</el-divider>
+
+        <div v-for="(room, index) in rowData.rooms" class="el-form--inline">
+          <el-form-item label="房间号" width="120">
+            <el-input
+              v-model="room.roomId"
+              label="房间号"
+              placeholder="请输入房间号"
+            />
+          </el-form-item>
+          <el-form-item label="虎粮数量（个）" width="120">
+            <el-input-number
+              v-model="room.foodstuff"
+              :min="1"
+              :max="9999999"
+              placeholder="请输入虎粮数量"
+            />
+          </el-form-item>
+          <el-form-item label="备注">
+            <el-input v-model="room.remarks" placeholder="备注" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="danger" size="small" @click="handleDelete(index)"
+              >删除</el-button
+            >
+          </el-form-item>
+        </div>
+        <div>
+          <el-button @click="addRoom">新增</el-button>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogVisible = false">关闭</el-button>
+            <el-button type="primary" @click="saveQQ">保存信息</el-button>
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+    <script src="https://cdn.staticfile.org/element-plus/2.2.5/locale/zh-cn.js"></script>
+    <script src="https://cdn.staticfile.org/vue/3.2.36/vue.global.js"></script>
+    <script src="https://cdn.staticfile.org/element-plus/2.2.5/index.full.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.0.0-alpha.1/axios.js"></script>
+
+    <script>
+      let dialogVisible = Vue.ref(false);
+      let rowData = Vue.ref({
+        qq: "",
+        pwd: "",
+        rooms: [{ roomId: "", foodstuff: 1, remarks: "" }],
+      });
+      let tableData = Vue.ref([
+        {
+          qq: "",
+          pwd: "",
+        },
+      ]);
+
+      //初始化table数据
+      const getData = () => {
+        axios.get("/accounts").then((res) => {
+          console.log(res);
+          tableData.value = res.data;
+        });
+      };
+
+      //点击编辑
+      const handleClick = (row) => {
+        console.log("点击编辑：", row);
+        axios
+          .get(`accounts/anchor?account=${row.account || 83727128}`)
+          .then((res) => {
+            console.log(res);
+            dialogVisible.value = true;
+            rowData.value = { ...row };
+            rowData.value.rooms = res.data;
+            console.log(rowData);
+          });
+      };
+
+      //新增room
+      const addRoom = () => {
+        rowData.value.rooms.push({
+          roomId: "",
+          foodstuff: 1,
+          remarks: "",
+        });
+      };
+
+      //从rooms中删除指定索引的room
+      const handleDelete = (index) => {
+        rowData.value.rooms.splice(index, 1);
+      };
+
+      //保存QQ信息
+      const saveQQ = () => {
+        axios.post(`accounts`, rowData.value).then((res) => {
+          console.log(res);
+          ElementPlus.ElMessage({
+            type: "success",
+            message: "保存成功",
+          });
+          dialogVisible.value = false;
+          //重新获取数据
+          getData();
+        });
+        console.log(rowData.value);
+      };
+
+      const vue3Composition = {
+        setup() {
+          Vue.onMounted(() => {
+            getData();
+          });
+          return {
+            tableData,
+            handleClick,
+            dialogVisible,
+            rowData,
+            addRoom,
+            saveQQ,
+            handleDelete,
+          };
+        },
+      };
+      Vue.createApp(vue3Composition)
+        .use(ElementPlus, { locale: ElementPlusLocaleZhCn })
+        .mount("#app");
+    </script>
+  </body>
+</html>
