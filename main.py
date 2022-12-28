@@ -113,10 +113,11 @@ class HuYa:
         # 加点延迟，让他完全渲染出来在获取
         time.sleep(3)
         # 获取打卡按钮
-        spans = chatHostPic.find_elements(By.TAG_NAME, "span")
-        for span in spans:
-            if span.text == "打卡领取":
-                span.click()
+        tagas = chatHostPic.find_elements(By.TAG_NAME, "a")
+        for tag in tagas:
+            print(tag.text)
+            if tag.text == "打卡":
+                tag.click()
                 print('每日打卡福利领取成功')
                 break
 
