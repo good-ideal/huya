@@ -272,9 +272,13 @@ class HuYa:
 
     # 赠送超级虎粮
     def send_super_gift(self, room_id, number):
+        # 点击更多礼物 2023.1.26 更新后需要点击更多礼物按钮
+        self.driver.find_element(
+            by=By.CLASS_NAME, value="player-face-arrow").click()
+
         # 赠送超级虎粮
         gifts = self.driver.find_elements(
-            by=By.CLASS_NAME, value="player-face-gift")
+            by=By.CLASS_NAME, value="gift-panel-item")
         gift_hl_id = -1
         for index, item in enumerate(gifts):
             if item.get_attribute("propsid") == "20699":
@@ -285,14 +289,14 @@ class HuYa:
             print('当前超级虎粮在列表:{}位'.format(gift_hl_id))
             time.sleep(2)
             confirmBtn = self.driver.execute_script('''
-                gifts = document.getElementsByClassName("player-face-gift");
-                gifts[''' + str(gift_hl_id) + '''].click()
+                gifts = document.getElementsByClassName("gift-panel-item");
+                gifts[''' + str(gift_hl_id) + '''].click();
                 setTimeout(function(){
                     if(document.getElementsByClassName('create-layer').length != 0){
-                        document.getElementsByClassName('create-layer')[0].remove()
+                        document.getElementsByClassName('create-layer')[0].remove();
                     }
                     if(document.getElementsByClassName('create-layer-mask').length != 0){
-                        document.getElementsByClassName('create-layer-mask')[0].remove()
+                        document.getElementsByClassName('create-layer-mask')[0].remove();
                     }
                 },1000)
                 if(document.getElementsByClassName("btn confirm").length != 0){
