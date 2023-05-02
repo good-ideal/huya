@@ -72,6 +72,9 @@ class HuYa:
         # 每日打卡
         self.dayCard()
 
+        # 关闭提示
+        self.youNow()
+
         # 领取宝箱
         self.getTreasure(room_id)
 
@@ -104,7 +107,16 @@ class HuYa:
         self.sendMsg("qmd", "亲密度统计", qmdtext)
         self.sendMsg("huliang", "虎粮赠送统计", "本次送出虎粮{}个".format(n))
 
+    def youNow(self):
+        # 关闭提示
+        try:
+            youNowDiv = self.driver.find_element(By.ID, "player-gift-word")
+            youNowDiv & youNowDiv.find_element(By.TAG_NAME, "span").click()
+        except:
+            print('不需要关闭提示信息，因为没有提示信息')
+
     # 每日打卡 前提是必须要已经进入了该房间
+
     def dayCard(self):
         # 每日打卡福利
         chatHostPic = self.driver.find_element(By.ID, "chatHostPic")
