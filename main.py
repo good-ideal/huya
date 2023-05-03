@@ -75,9 +75,6 @@ class HuYa:
         # 关闭提示
         self.youNow()
 
-        # 领取宝箱
-        self.getTreasure(room_id)
-
         # 赠送超级虎粮
         self.send_super_gift(room_id, 10)
 
@@ -106,6 +103,9 @@ class HuYa:
         # 打卡 发送统计
         self.sendMsg("qmd", "亲密度统计", qmdtext)
         self.sendMsg("huliang", "虎粮赠送统计", "本次送出虎粮{}个".format(n))
+
+        # 领取宝箱
+        self.getTreasure(room_id)
 
     def youNow(self):
         # 关闭提示
@@ -143,7 +143,7 @@ class HuYa:
         # 等渲染完成
         self.driver.implicitly_wait(3)
 
-        iframes = self.driver.find_elements_by_tag_name("iframe")
+        iframes = self.driver.find_elements(By.TAG_NAME, "iframe")
 
         # 循环iframes
         for iframe in iframes:
@@ -181,11 +181,12 @@ class HuYa:
                 time.sleep(1)
                 self.driver.execute_script(
                     'document.getElementsByClassName("btn-success")[0] && document.getElementsByClassName("btn-success")[0].click()')
-                # 刷新当前网页
-                self.driver.switch_to.default_content()
-                self.driver.refresh()
-                self.driver.implicitly_wait(2)
                 break
+
+        # 刷新当前网页
+        self.driver.switch_to.default_content()
+        self.driver.refresh()
+        self.driver.implicitly_wait(2)
         return num
         # 获取虎粮数量
         # num = item.find_element(By.CLASS_NAME, "num").text
@@ -244,6 +245,15 @@ class HuYa:
         # 加点延迟，让他完全渲染出来在获取
         time.sleep(1)
 
+        # 关闭tips
+        try:
+            tips = self.driver.find_element(
+                By.CLASS_NAME, "tip-bg-common-new-close")
+            tips.click()
+            print("宝箱: 成功关闭宝箱tips")
+        except:
+            print("宝箱: 没有tips")
+
         # 2022.11.8 更新后没有li标签了采用class获取
         # playerBox = playerChest.find_elements(
         #     by=By.TAG_NAME, value="li")
@@ -252,35 +262,36 @@ class HuYa:
 
         print("宝箱数量：{}".format(len(playerBox)))
         for index, player in enumerate(playerBox):
-            print(player.text)
+            print("第" + str(index + 1) + "个宝箱: " + player.text)
             if not player.text.startswith("x"):
                 # 有倒计时的宝箱
                 if player.text.startswith("0") or player.text == "请稍后":
                     self.now()
                     # 睡眠10分10秒 后在领取
                     time.sleep(610)
-                    self.driver.execute_script(
-                        'document.getElementsByClassName("player-box-stat3")[' + str(
-                            index) + '].click();'
-                    )
+                    self.driver.find_elements(
+                        By.CLASS_NAME, "player-box-stat3")[index].click()
                     time.sleep(2)
                 if player.text == "领取":
-                    self.driver.execute_script(
-                        'document.getElementsByClassName("player-box-stat3")[' + str(
-                            index) + '].click();'
-                    )
-                    time.sleep(1)
+                    print("准备领取第" + str(index + 1) + "个宝箱")
+                    # 点击领取按钮
+                    self.driver.find_elements(
+                        By.CLASS_NAME, "player-box-stat3")[index].click()
+                    time.sleep(5)
 
                 # 打印获取领取到的奖励内容
-                content = self.driver.execute_script(
-                    'return document.getElementsByClassName("player-box-stat4")[' + str(
-                        index) + '].innerText;'
-                )
+                # content = self.driver.execute_script(
+                #     'return document.getElementsByClassName("player-box-stat4")[' + str(
+                #         index) + '].innerText;'
+                # )
                 self.now()
                 print('领取宝箱成功')
         if exceptfail:
             self.driver.get("https://huya.com/{}".format(room_id))
             self.driver.implicitly_wait(2)  # 等待跳转
+
+        # 赠送普通虎粮
+        self.send_hl()
 
     # 赠送超级虎粮
     def send_super_gift(self, room_id, number):
