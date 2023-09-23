@@ -225,10 +225,10 @@ class HuYa:
         exceptfail = False
         try:
             # 宝箱按钮
-            playerChest = self.driver.find_element(
-                By.CLASS_NAME, "player-chest")
+            self.driver.find_element(
+                By.CLASS_NAME, "player-chest-btn").click()
             # 悬浮到按钮上
-            ActionChains(driver).move_to_element(playerChest).perform()
+            # ActionChains(driver).move_to_element(playerChest).perform()
         except:
             print("没有宝箱按钮")
             self.driver.get("https://huya.com/{}".format(11336726))
@@ -237,14 +237,13 @@ class HuYa:
             exceptfail = True
             time.sleep(2)
             # 宝箱按钮
-            playerChest = self.driver.find_element(
-                By.CLASS_NAME, "player-chest")
+            self.driver.find_element(
+                By.CLASS_NAME, "player-chest-btn").click()
             # 悬浮到按钮上
-            ActionChains(driver).move_to_element(playerChest).perform()
+            # ActionChains(driver).move_to_element(playerChest).perform()
 
-        # 加点延迟，让他完全渲染出来在获取
-        time.sleep(1)
-
+        # 加点延迟，等待宝箱全部加载完毕后领取
+        time.sleep(4000)
         # 关闭tips
         try:
             tips = self.driver.find_element(
@@ -253,6 +252,16 @@ class HuYa:
             print("宝箱: 成功关闭宝箱tips")
         except:
             print("宝箱: 没有tips")
+
+        boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-3")
+
+        itmes = boxItem.find_elements(By.CLASS_NAME, "item")
+
+        for index, item in enumerate(itmes):
+            btn = item.find_element(By.CLASS_NAME, "btn")
+            if btn.text:
+                btn.click()
+        return
 
         # 2022.11.8 更新后没有li标签了采用class获取
         # playerBox = playerChest.find_elements(
@@ -381,7 +390,6 @@ class HuYa:
 
 
 if __name__ == '__main__':
-
     chrome_options = Options()
     chrome_options.add_argument('--headless')  # 无头模式
     chrome_options.add_argument("--ignore-certificate-errors")  # 忽略证书错误
@@ -411,4 +419,5 @@ if __name__ == '__main__':
     # 北枫的直播号572329 虎粮数
     hy.into_room(572329, 50)
     driver.quit()
+    exit
     # requests.get('https://api.day.app/tBDuDKqMZ9EqPC5RojvYdF/虎牙虎粮赠送完成')
