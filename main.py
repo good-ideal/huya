@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 
 
 class HuYa:
@@ -411,7 +412,8 @@ if __name__ == '__main__':
         os.mkdir(path_chrome_data)
     chrome_options.add_argument(r'user-data-dir=' + path_chrome_data)
     # chromedriver_autoinstaller.install()
-    driver = webdriver.Chrome(options=chrome_options)
+    service = Service(executable_path='/usr/lib/chromium-browser/chromedriver')
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     hy = HuYa(driver)
 
