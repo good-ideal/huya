@@ -10,14 +10,20 @@ pythonPid=$(ps aux | grep main.py | grep -v grep | awk '{print $2}')
 # 检查是否找到了进程
 if [ -n "$chromePid" ]; then
     # 进程存在，执行终止命令（可以选择使用kill -15或kill -9）
-    kill -9 "$chromePid"  # 或者 kill -15 "$pid"
+    for pid in $chromePid; do
+	echo "停止chrome进程 $pid"
+    	kill -9 "$pid"  # 或者 kill -15 "$pid"
+    done
 else
     echo "没有找到chrome进程"
 fi
 
 if [ -n "$pythonPid" ]; then
     # 进程存在，执行终止命令（可以选择使用kill -15或kill -9）
-    kill -9 "$pythonPid"  # 或者 kill -15 "$pid"
+   for pid in $pythonPid; do
+        echo "停止python进程 $pid"
+        kill -9 "$pid"  # 或者 kill -15 "$pid"
+    done
 else
     echo "没有找到python进程"
 fi
