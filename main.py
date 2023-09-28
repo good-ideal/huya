@@ -64,7 +64,7 @@ class HuYa:
         # print("当前有{}个虎粮".format(s))
 
         self.driver.get("https://huya.com/{}".format(room_id))
-        self.driver.implicitly_wait(2)  # 等待跳转
+        #self.driver.implicitly_wait(2)  # 等待跳转
         print("Enter room:{}".format(room_id))
 
         time.sleep(2)
@@ -319,25 +319,27 @@ class HuYa:
         # aa[1].click()
         for i in range(number):
             print('当前超级虎粮在列表:{}位'.format(gift_hl_id))
-            time.sleep(2)
-            confirmBtn = self.driver.execute_script('''
-                gifts = document.getElementsByClassName("gift-panel-item");
-                gifts[''' + str(gift_hl_id) + '''].click();
-                setTimeout(function(){
-                    if(document.getElementsByClassName('create-layer').length != 0){
-                        document.getElementsByClassName('create-layer')[0].remove();
+            #time.sleep(2)
+            if gift_hl_id != -1:
+                time.sleep(2)
+                confirmBtn = self.driver.execute_script('''
+                    gifts = document.getElementsByClassName("gift-panel-item");
+                    gifts[''' + str(gift_hl_id) + '''].click();
+                    setTimeout(function(){
+                        if(document.getElementsByClassName('create-layer').length != 0){
+                            document.getElementsByClassName('create-layer')[0].remove();
+                        }
+                        if(document.getElementsByClassName('create-layer-mask').length != 0){
+                            document.getElementsByClassName('create-layer-mask')[0].remove();
+                        }
+                    },1000)
+                    if(document.getElementsByClassName("btn confirm").length != 0){
+                        document.getElementsByClassName("btn confirm")[0].click();
                     }
-                    if(document.getElementsByClassName('create-layer-mask').length != 0){
-                        document.getElementsByClassName('create-layer-mask')[0].remove();
-                    }
-                },1000)
-                if(document.getElementsByClassName("btn confirm").length != 0){
-                    document.getElementsByClassName("btn confirm")[0].click();
-                }
-                return 1;
-            ''')
-            print('房间号:{} 赠送第{}个超级虎粮.'.format(room_id, i))
-            time.sleep(1)
+                    return 1;
+                ''')
+                print('房间号:{} 赠送第{}个超级虎粮.'.format(room_id, i))
+                time.sleep(1)
 
     # 获取背包虎粮数量
     def get_hul(self):
@@ -390,6 +392,7 @@ class HuYa:
 
 
 if __name__ == '__main__':
+    chromedriver = os.getenv('CHROME_DRIVER') #读取环境变量
     chrome_options = Options()
     chrome_options.add_argument('--headless')  # 无头模式
     chrome_options.add_argument("--ignore-certificate-errors")  # 忽略证书错误
@@ -411,7 +414,11 @@ if __name__ == '__main__':
         os.mkdir(path_chrome_data)
     chrome_options.add_argument(r'user-data-dir=' + path_chrome_data)
     # chromedriver_autoinstaller.install()
-    driver = webdriver.Chrome(options=chrome_options)
+    # 如果有自己的驱动文件地址
+    if chromedriver:
+        driver = webdriver.Chrome(options=chrome_options, executable_path=chromedriver)
+    else:
+        driver = webdriver.Chrome(options=chrome_options, executable_path='/usr/lib/chromium-browser/chromedriver')
 
     hy = HuYa(driver)
 
