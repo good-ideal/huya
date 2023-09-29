@@ -84,6 +84,7 @@ class HuYa:
         # 赠送普通虎粮
         n = self.send_hl()
 
+        time.sleep(5)
         # 每日打卡福利
         chatHostPic = self.driver.find_element(By.ID, "chatHostPic")
         # 悬浮到按钮上
