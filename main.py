@@ -87,7 +87,7 @@ class HuYa:
         # 每日打卡福利
         chatHostPic = self.driver.find_element(By.ID, "chatHostPic")
         # 悬浮到按钮上
-        ActionChains(self.driver).move_to_element(chatHostPic).perform()
+        ActionChains(self.driver).move_to_element(chatHostPic).performcaca()
         # 加点延迟，让他完全渲染出来在获取
         time.sleep(3)
         # 统计
@@ -139,6 +139,7 @@ class HuYa:
 
     # 赠送普通虎粮 可以一次性赠送完成
     def send_hl(self):
+        logging.info("开始进行赠送普通虎粮")
         num = 0
         # 点击背包按钮
         package = self.driver.find_element(By.ID, "player-package-btn")
@@ -159,7 +160,8 @@ class HuYa:
                 break
 
         packs = self.driver.find_elements(By.CLASS_NAME, "m-gift-item p")
-        print("背包数量：{}".format(len(packs)))
+        logging.info("背包虎粮数量：{}".format(len(packs)))
+        # print("背包数量：{}".format(len(packs)))
         for index, item in enumerate(packs):
             # 获取物品的名称 判断是虎粮吗 如果是就获取数量，然后赠送
             if "虎粮" in item.text:
@@ -185,8 +187,10 @@ class HuYa:
                 time.sleep(1)
                 self.driver.execute_script(
                     'document.getElementsByClassName("btn-success")[0] && document.getElementsByClassName("btn-success")[0].click()')
+                logging.info("普通虎粮赠送成功")
                 break
 
+        logging.info("结束赠送普通虎粮")
         # 刷新当前网页
         self.driver.switch_to.default_content()
         self.driver.refresh()
@@ -317,9 +321,11 @@ class HuYa:
     # 赠送超级虎粮
     def send_super_gift(self, room_id, number):
         # 点击更多礼物 2023.1.26 更新后需要点击更多礼物按钮
-        self.driver.find_element(
-            by=By.CLASS_NAME, value="player-face-arrow").click()
-
+        playerface = self.driver.find_element(
+            by=By.CLASS_NAME, value="player-face-arrow")
+        if playerface == None:
+            return
+        playerface.click()
         # 赠送超级虎粮
         gifts = self.driver.find_elements(
             by=By.CLASS_NAME, value="gift-panel-item")
