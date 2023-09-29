@@ -79,12 +79,12 @@ class HuYa:
         self.youNow()
 
         # 赠送超级虎粮
-        self.send_super_gift(room_id, 10)
+        #self.send_super_gift(room_id, 10)
 
         # 赠送普通虎粮
         n = self.send_hl()
 
-        time.sleep(5)
+        time.sleep(2)
         # 每日打卡福利
         chatHostPic = self.driver.find_element(By.ID, "chatHostPic")
         # 悬浮到按钮上
