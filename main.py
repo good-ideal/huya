@@ -1,12 +1,16 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver import ActionChains
+from selenium import webdriver
+from pathlib import Path
+import traceback
 import os
 import time
 import requests
-from pathlib import Path
-
-from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 
 class HuYa:
@@ -22,13 +26,13 @@ class HuYa:
             status = []
         if len(status) == 1:
             username = status[0].get_attribute("textContent")
-            print("user:{} has logged in.".format(username))
+            logging.info("用户:{} 已经登陆了.".format(username))
             return True
         return False
 
     def login(self, username, password):
         self.driver.get(self.url_userIndex)
-        print("user:{} start to login.".format(username))
+        logging.info("用户:{} 开始去登陆.".format(username))
         self.driver.implicitly_wait(2)  # 等待跳转
         if self.login_check():
             return True
@@ -58,15 +62,14 @@ class HuYa:
                 time.sleep(0.1)
 
     def into_room(self, room_id, n):
-
+        start = time.time()
         # 验证普通虎粮
         # s = int(self.get_hul())
         # print("当前有{}个虎粮".format(s))
-
         self.driver.get("https://huya.com/{}".format(room_id))
-        #self.driver.implicitly_wait(2)  # 等待跳转
-        print("Enter room:{}".format(room_id))
-
+        # self.driver.implicitly_wait(2)  # 等待跳转
+        end = time.time()
+        logging.info("进入直播间: {}, ms: {}".format(room_id, end - start))
         time.sleep(2)
 
         # 每日打卡
@@ -118,6 +121,7 @@ class HuYa:
     # 每日打卡 前提是必须要已经进入了该房间
 
     def dayCard(self):
+        logging.info("开始进行每日福利打卡")
         # 每日打卡福利
         chatHostPic = self.driver.find_element(By.ID, "chatHostPic")
         # 悬浮到按钮上
@@ -127,10 +131,10 @@ class HuYa:
         # 获取打卡按钮
         tagas = chatHostPic.find_elements(By.TAG_NAME, "a")
         for tag in tagas:
-            print(tag.text)
+            # print(tag.text)
             if tag.text == "打卡":
                 tag.click()
-                print('每日打卡福利领取成功')
+                logging.info("每日打卡福利领取成功")
                 break
 
     # 赠送普通虎粮 可以一次性赠送完成
@@ -253,6 +257,13 @@ class HuYa:
         except:
             print("宝箱: 没有tips")
 
+        # 刷新当前网页
+        self.driver.refresh()
+        self.driver.implicitly_wait(2)
+
+        # 宝箱按钮
+        self.driver.find_element(
+            By.CLASS_NAME, "player-chest-btn").click()
         boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-3")
 
         itmes = boxItem.find_elements(By.CLASS_NAME, "item")
@@ -261,6 +272,7 @@ class HuYa:
             btn = item.find_element(By.CLASS_NAME, "btn")
             if btn.text:
                 btn.click()
+                logging.info("领取宝箱成功")
         return
 
         # 2022.11.8 更新后没有li标签了采用class获取
@@ -319,7 +331,7 @@ class HuYa:
         # aa[1].click()
         for i in range(number):
             print('当前超级虎粮在列表:{}位'.format(gift_hl_id))
-            #time.sleep(2)
+            # time.sleep(2)
             if gift_hl_id != -1:
                 time.sleep(2)
                 confirmBtn = self.driver.execute_script('''
@@ -392,39 +404,49 @@ class HuYa:
 
 
 if __name__ == '__main__':
-    chromedriver = os.getenv('CHROME_DRIVER') #读取环境变量
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')  # 无头模式
-    chrome_options.add_argument("--ignore-certificate-errors")  # 忽略证书错误
-    chrome_options.add_argument("--disable-popup-blocking")  # 禁用弹出拦截
-    chrome_options.add_argument("no-sandbox")  # 取消沙盒模式
-    chrome_options.add_argument("no-default-browser-check")  # 禁止默认浏览器检查
-    chrome_options.add_argument("disable-extensions")  # 禁用扩展
-    chrome_options.add_argument("disable-glsl-translator")  # 禁用GLSL翻译
-    chrome_options.add_argument("disable-translate")  # 禁用翻译
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--hide-scrollbars")  # 隐藏滚动条, 应对一些特殊页面
-    chrome_options.add_argument(
-        "blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
+    try:
+        logging.info('脚本开始工作。')
+        chromedriver = os.getenv('CHROME_DRIVER')  # 读取环境变量
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')  # 无头模式
+        chrome_options.add_argument("--ignore-certificate-errors")  # 忽略证书错误
+        chrome_options.add_argument("--disable-popup-blocking")  # 禁用弹出拦截
+        chrome_options.add_argument("no-sandbox")  # 取消沙盒模式
+        chrome_options.add_argument("no-default-browser-check")  # 禁止默认浏览器检查
+        chrome_options.add_argument("disable-extensions")  # 禁用扩展
+        chrome_options.add_argument("disable-glsl-translator")  # 禁用GLSL翻译
+        chrome_options.add_argument("disable-translate")  # 禁用翻译
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--hide-scrollbars")  # 隐藏滚动条, 应对一些特殊页面
+        chrome_options.add_argument(
+            "blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
 
-    # 如果希望下次使用的时候不登录，可以把chrome data保存，但是只能同一时间同一个浏览器用
-    # 如果有多个用户也可以保存多个chrome data
-    path_chrome_data = os.getcwd() + '/chromeData'
-    if not Path(path_chrome_data).exists():
-        os.mkdir(path_chrome_data)
-    chrome_options.add_argument(r'user-data-dir=' + path_chrome_data)
-    # chromedriver_autoinstaller.install()
-    # 如果有自己的驱动文件地址
-    if chromedriver:
-        driver = webdriver.Chrome(options=chrome_options, executable_path=chromedriver)
-    else:
-        driver = webdriver.Chrome(options=chrome_options, executable_path='/usr/lib/chromium-browser/chromedriver')
+        # 如果希望下次使用的时候不登录，可以把chrome data保存，但是只能同一时间同一个浏览器用
+        # 如果有多个用户也可以保存多个chrome data
+        path_chrome_data = os.getcwd() + '/chromeData'
+        if not Path(path_chrome_data).exists():
+            os.mkdir(path_chrome_data)
+        chrome_options.add_argument(r'user-data-dir=' + path_chrome_data)
+        # chromedriver_autoinstaller.install()
+        # 如果有自己的驱动文件地址
+        if chromedriver:
+            driver = webdriver.Chrome(
+                options=chrome_options, executable_path=chromedriver)
+        else:
+            driver = webdriver.Chrome(
+                options=chrome_options, executable_path='/usr/lib/chromium-browser/chromedriver')
+        # 设置页面超时时间
+        driver.set_page_load_timeout(5)
+        hy = HuYa(driver)
+        hy.login(username="cailong", password="cailong")
+        # 北枫的直播号572329 虎粮数
+        hy.into_room(572329, 50)
+    except Exception as e:
+        logging.error('脚本运行异常。')
+        traceback.print_exc()
+    finally:
+        logging.info('脚本运行结束。')
+        driver.quit()
+        exit
 
-    hy = HuYa(driver)
-
-    hy.login(username="cailong", password="cailong")
-    # 北枫的直播号572329 虎粮数
-    hy.into_room(572329, 50)
-    driver.quit()
-    exit
     # requests.get('https://api.day.app/tBDuDKqMZ9EqPC5RojvYdF/虎牙虎粮赠送完成')
