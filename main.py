@@ -86,23 +86,25 @@ class HuYa:
 
         time.sleep(2)
         # 每日打卡福利
-        chatHostPic = self.driver.find_element(By.ID, "chatHostPic")
+        chatHostPic1 = self.driver.find_element(By.ID, "chatHostPic")
+        # logging.warning(chatHostPic1)
         # 悬浮到按钮上
-        ActionChains(self.driver).move_to_element(chatHostPic).performcaca()
+        ActionChains(self.driver).move_to_element(chatHostPic1).perform()
         # 加点延迟，让他完全渲染出来在获取
         time.sleep(3)
         # 统计
-        ems = chatHostPic.find_elements(By.TAG_NAME, "em")
+        ems = chatHostPic1.find_elements(By.TAG_NAME, "em")
         qmdtext = ""
         for index, em in enumerate(ems):
-            print(em.text)
+            # print(em.text)
             # 第三个是今日亲密度数量
             if index == 3:
                 qmdtext += "今日增加亲密度{},".format(em.text)
             # 第四个是还差多少亲密度升级
             if index == 4:
                 qmdtext += "还差{}点亲密度".format(em.text)
-        print(qmdtext)
+        # print(qmdtext)
+        logging.info(qmdtext)
 
         # 打卡 发送统计
         self.sendMsg("qmd", "亲密度统计", qmdtext)
@@ -117,10 +119,9 @@ class HuYa:
             youNowDiv = self.driver.find_element(By.ID, "player-gift-word")
             youNowDiv & youNowDiv.find_element(By.TAG_NAME, "span").click()
         except:
-            print('不需要关闭提示信息，因为没有提示信息')
+            logging.info('不需要关闭提示信息，因为没有提示信息')
 
     # 每日打卡 前提是必须要已经进入了该房间
-
     def dayCard(self):
         logging.info("开始进行每日福利打卡")
         # 每日打卡福利
@@ -441,7 +442,7 @@ if __name__ == '__main__':
                 options=chrome_options, executable_path=chromedriver)
         else:
             driver = webdriver.Chrome(
-                options=chrome_options, executable_path='/usr/lib/chromium-browser/chromedriver')
+                options=chrome_options)
         # 设置页面超时时间
         driver.set_page_load_timeout(5)
         hy = HuYa(driver)
