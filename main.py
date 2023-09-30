@@ -9,7 +9,7 @@ import time
 import requests
 import logging
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    format='%(asctime)s %(levelname)s %(filename)s [line:%(lineno)d] %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 
 
@@ -84,7 +84,19 @@ class HuYa:
         # 赠送普通虎粮
         n = self.send_hl()
 
-        time.sleep(2)
+        time.sleep(5)
+
+        qmdtext = self.statistics()
+
+        # 打卡 发送统计
+        self.sendMsg("qmd", "亲密度统计", qmdtext)
+        self.sendMsg("huliang", "虎粮赠送统计", "本次送出虎粮{}个".format(n))
+
+        # 领取宝箱
+        self.getTreasure(room_id)
+
+    # 统计数据
+    def statistics(self):
         # 每日打卡福利
         chatHostPic1 = self.driver.find_element(By.ID, "chatHostPic")
         # logging.warning(chatHostPic1)
@@ -94,24 +106,17 @@ class HuYa:
         time.sleep(3)
         # 统计
         ems = chatHostPic1.find_elements(By.TAG_NAME, "em")
-        qmdtext = ""
+        text = ""
         for index, em in enumerate(ems):
             # print(em.text)
             # 第三个是今日亲密度数量
             if index == 3:
-                qmdtext += "今日增加亲密度{},".format(em.text)
+                text += "今日增加亲密度{},".format(em.text)
             # 第四个是还差多少亲密度升级
             if index == 4:
-                qmdtext += "还差{}点亲密度".format(em.text)
-        # print(qmdtext)
-        logging.info(qmdtext)
-
-        # 打卡 发送统计
-        self.sendMsg("qmd", "亲密度统计", qmdtext)
-        self.sendMsg("huliang", "虎粮赠送统计", "本次送出虎粮{}个".format(n))
-
-        # 领取宝箱
-        self.getTreasure(room_id)
+                text += "还差{}点亲密度".format(em.text)
+        logging.info(text)
+        return text
 
     def youNow(self):
         # 关闭提示
@@ -259,24 +264,26 @@ class HuYa:
             tips = self.driver.find_element(
                 By.CLASS_NAME, "tip-bg-common-new-close")
             tips.click()
-            print("宝箱: 成功关闭宝箱tips")
+            logging.info("宝箱: 成功关闭宝箱tips")
         except:
-            print("宝箱: 没有tips")
+            logging.warning("宝箱: 没有tips")
 
         # 刷新当前网页
         self.driver.refresh()
         self.driver.implicitly_wait(2)
 
+        time.sleep(5)
         # 宝箱按钮
         self.driver.find_element(
             By.CLASS_NAME, "player-chest-btn").click()
         boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-3")
 
         itmes = boxItem.find_elements(By.CLASS_NAME, "item")
-
+        logging.info('待领取{}个宝箱'.format(len(itmes)))
         for index, item in enumerate(itmes):
             btn = item.find_element(By.CLASS_NAME, "btn")
-            if btn.text:
+            logging.info('当前{}个宝箱状态：{}'.format(index, btn.text))
+            if btn is not None:
                 btn.click()
                 logging.info("领取宝箱成功")
         return
