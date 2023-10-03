@@ -108,7 +108,7 @@ class HuYa:
         ems = chatHostPic1.find_elements(By.TAG_NAME, "em")
         text = ""
         for index, em in enumerate(ems):
-            # print(em.text)
+            print(em.text)
             # 第三个是今日亲密度数量
             if index == 3:
                 text += "今日增加亲密度{},".format(em.text)
@@ -174,7 +174,8 @@ class HuYa:
             if "虎粮" in item.text:
                 count = item.parent.find_element(By.CLASS_NAME, "c-count")
                 # 获取虎粮数量
-                print("剩余{}: {}".format(item.text, count.text))
+                # print("剩余{}: {}".format(item.text, count.text))
+                logging.info("剩余{}: {}".format(item.text, count.text))
                 # 悬浮到按钮上
                 ActionChains(self.driver).move_to_element(item).perform()
                 # 加点延迟，让他完全渲染出来在获取
@@ -280,12 +281,19 @@ class HuYa:
 
         itmes = boxItem.find_elements(By.CLASS_NAME, "item")
         logging.info('待领取{}个宝箱'.format(len(itmes)))
-        for index, item in enumerate(itmes):
-            btn = item.find_element(By.CLASS_NAME, "btn")
-            logging.info('当前{}个宝箱状态：{}'.format(index, btn.text))
-            if btn is not None:
-                btn.click()
-                logging.info("领取宝箱成功")
+        # for index, item in enumerate(itmes):
+        #     btn = item.find_element(By.CLASS_NAME, "btn")
+        #     logging.info('当前{}个宝箱状态：{}'.format(index, btn.text))
+        #     if btn is not None:
+        #         btn.click()
+        #         logging.info("领取宝箱成功")
+
+        self.driver.execute_script('''
+            $('.item .btn').each(function(index,item){
+                $(item).click();
+            })
+        ''')
+        time.sleep(30)
         return
 
         # 2022.11.8 更新后没有li标签了采用class获取
