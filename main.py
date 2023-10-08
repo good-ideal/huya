@@ -66,7 +66,13 @@ class HuYa:
         # 验证普通虎粮
         # s = int(self.get_hul())
         # print("当前有{}个虎粮".format(s))
-        self.driver.get("https://huya.com/{}".format(room_id))
+        try:
+            self.driver.get("https://huya.com/{}".format(room_id))
+        except Exception as e:
+            driver.execute_script("window.stop()")
+            logging.info('进入房间出现异常。')
+            traceback.print_exc()
+
         # self.driver.implicitly_wait(2)  # 等待跳转
         end = time.time()
         logging.info("进入直播间: {}, ms: {}".format(room_id, end - start))
@@ -459,7 +465,7 @@ if __name__ == '__main__':
             driver = webdriver.Chrome(
                 options=chrome_options)
         # 设置页面超时时间
-        driver.set_page_load_timeout(5)
+        driver.set_page_load_timeout(10)
         hy = HuYa(driver)
         hy.login(username="cailong", password="cailong")
         # 北枫的直播号572329 虎粮数

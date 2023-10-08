@@ -1,4 +1,5 @@
 #!/bin/bash
+echo $(date +%Y-%m-%d\ %H:%M:%S)
 echo "开始执行清理工作！"
 
 chromePid=$(ps -ef | grep chrome | grep -v grep | awk '{print $2}')
