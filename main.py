@@ -85,7 +85,7 @@ class HuYa:
         self.youNow()
 
         # 赠送超级虎粮
-        #self.send_super_gift(room_id, 10)
+        self.send_super_gift(room_id, 10)
 
         # 赠送普通虎粮
         n = self.send_hl()
