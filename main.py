@@ -61,6 +61,17 @@ class HuYa:
             while not self.login_check():
                 time.sleep(0.1)
 
+    # 进入任务中心，自动签到
+    def task_center(self):
+        try:
+            self.driver.get("https://hd.huya.com/h5/task_center/index.html")
+        except Exception as e:
+            driver.execute_script("window.stop()")
+            logging.info('进入任务中心出现异常。')
+            traceback.print_exc()
+
+        time.sleep(3)
+
     def into_room(self, room_id, n):
         start = time.time()
         # 验证普通虎粮
@@ -468,6 +479,8 @@ if __name__ == '__main__':
         driver.set_page_load_timeout(10)
         hy = HuYa(driver)
         hy.login(username="cailong", password="cailong")
+        # 先去自动签到
+        hy.task_center()
         # 北枫的直播号572329 虎粮数
         hy.into_room(572329, 50)
     except Exception as e:
