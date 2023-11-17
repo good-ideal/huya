@@ -437,7 +437,8 @@ class HuYa:
 
     # 推送消息到手机
     def sendMsg(self, group, title, msg):
-        icon = "https://www.huya.com/favicon.ico"
+        # icon = "https://www.huya.com/favicon.ico"
+        icon = "https://bizaladdin-image.baidu.com/0/pic/-695589114_-799175928_622649276.jpg"
         print('https://api.day.app/tBDuDKqMZ9EqPC5RojvYdF/{}/{}?group={}&icon={}'.format(title, msg, group, icon))
         requests.get(
             'https://api.day.app/tBDuDKqMZ9EqPC5RojvYdF/{}/{}?group={}&icon={}'.format(title, msg, group, icon))
