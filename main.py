@@ -439,9 +439,9 @@ class HuYa:
     def sendMsg(self, group, title, msg):
         # icon = "https://www.huya.com/favicon.ico"
         icon = "https://bizaladdin-image.baidu.com/0/pic/-695589114_-799175928_622649276.jpg"
-        print('https://api.day.app/tBDuDKqMZ9EqPC5RojvYdF/{}/{}?group={}&icon={}'.format(title, msg, group, icon))
+        print('https://bark.s6.design/ZdrWZumT8QnPGUsmVjmg9k/{}/{}?group={}&icon={}'.format(title, msg, group, icon))
         requests.get(
-            'https://api.day.app/tBDuDKqMZ9EqPC5RojvYdF/{}/{}?group={}&icon={}'.format(title, msg, group, icon))
+            'https://bark.s6.design/ZdrWZumT8QnPGUsmVjmg9k/{}/{}?group={}&icon={}'.format(title, msg, group, icon))
 
 
 if __name__ == '__main__':
