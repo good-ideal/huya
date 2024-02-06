@@ -294,7 +294,7 @@ class HuYa:
         # 宝箱按钮
         self.driver.find_element(
             By.CLASS_NAME, "player-chest-btn").click()
-        boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-3")
+        boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-4")
 
         itmes = boxItem.find_elements(By.CLASS_NAME, "item")
         logging.info('待领取{}个宝箱'.format(len(itmes)))
