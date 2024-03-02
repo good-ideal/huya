@@ -286,18 +286,8 @@ class HuYa:
         except:
             logging.warning("宝箱: 没有tips")
 
-        # 刷新当前网页
-        self.driver.refresh()
-        self.driver.implicitly_wait(2)
-
-        time.sleep(5)
-        # 宝箱按钮
-        self.driver.find_element(
-            By.CLASS_NAME, "player-chest-btn").click()
-        boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-4")
-
-        itmes = boxItem.find_elements(By.CLASS_NAME, "item")
-        logging.info('待领取{}个宝箱'.format(len(itmes)))
+        # 领取普通箱子
+        self.refresh_player()
         # for index, item in enumerate(itmes):
         #     btn = item.find_element(By.CLASS_NAME, "btn")
         #     logging.info('当前{}个宝箱状态：{}'.format(index, btn.text))
@@ -310,9 +300,16 @@ class HuYa:
                 $(item).click();
             })
         ''')
-        time.sleep(30)
-        return
+        # 等待5秒
+        time.sleep(5)
 
+        # 看广告
+        logging.info("广告宝箱: 准备领取宝箱")
+        self.look_ad()
+        logging.info("广告宝箱: 领取宝箱结束")
+
+        return
+    
         # 2022.11.8 更新后没有li标签了采用class获取
         # playerBox = playerChest.find_elements(
         #     by=By.TAG_NAME, value="li")
@@ -352,6 +349,38 @@ class HuYa:
         # 赠送普通虎粮
         self.send_hl()
 
+    # 刷新并且点击宝箱按钮
+    def refresh_player(self):
+        # 刷新当前网页
+        self.driver.refresh()
+        self.driver.implicitly_wait(2)
+
+        time.sleep(5)
+        # 宝箱按钮
+        self.driver.find_element(
+            By.CLASS_NAME, "player-chest-btn").click()
+        boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-4")
+
+        itmes = boxItem.find_elements(By.CLASS_NAME, "item")
+        logging.info('待领取{}个宝箱'.format(len(itmes)))
+    
+    # 看广告领取宝箱
+    def look_ad(self):
+        self.refresh_player()
+        time.sleep(5)
+        adlength = self.driver.execute_script('''
+            //如果有none, 就表示没有可以领取的广告宝箱了
+            return !($('.item .btn').last().attr('style').indexOf('none') > -1);
+        ''')
+        logging.info('广告宝箱: 宝箱可领取状态 {}'.format(adlength))
+        # true就是可以领取
+        if adlength:
+            self.driver.execute_script('''
+            $('.item .btn').last().click();  
+            ''')
+            time.sleep(60)
+            self.look_ad()
+        
     # 赠送超级虎粮
     def send_super_gift(self, room_id, number):
         # 点击更多礼物 2023.1.26 更新后需要点击更多礼物按钮
@@ -481,7 +510,7 @@ if __name__ == '__main__':
         hy = HuYa(driver)
         hy.login(username="cailong", password="cailong")
         # 先去自动签到
-        hy.task_center()
+        # hy.task_center()
         # 北枫的直播号572329 虎粮数
         hy.into_room(572329, 50)
     except Exception as e:
