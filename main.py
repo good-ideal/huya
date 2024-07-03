@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver import ActionChains
 from selenium import webdriver
 from pathlib import Path
+from selenium.common.exceptions import NoSuchElementException
 import traceback
 import os
 import time
@@ -287,25 +288,14 @@ class HuYa:
             logging.warning("宝箱: 没有tips")
 
         # 领取普通箱子
-        self.refresh_player()
-        # for index, item in enumerate(itmes):
-        #     btn = item.find_element(By.CLASS_NAME, "btn")
-        #     logging.info('当前{}个宝箱状态：{}'.format(index, btn.text))
-        #     if btn is not None:
-        #         btn.click()
-        #         logging.info("领取宝箱成功")
+        self.ad()
 
-        self.driver.execute_script('''
-            $('.item .btn').each(function(index,item){
-                $(item).click();
-            })
-        ''')
         # 等待5秒
         time.sleep(5)
 
         # 看广告
         logging.info("广告宝箱: 准备领取宝箱")
-        self.look_ad()
+        self.look_ad(0)
         logging.info("广告宝箱: 领取宝箱结束")
 
         return
@@ -349,6 +339,26 @@ class HuYa:
         # 赠送普通虎粮
         self.send_hl()
 
+    def ad(self):
+        count = self.refresh_player()
+        self.driver.execute_script('''
+            function sleep(fun, time) {
+                setTimeout(() => {
+                    fun();
+                }, time);
+            }
+            $('#box-item-list .box-item').each(function(index,item){
+                if(index<=6){
+                    sleep(() =>{
+                        $(item).find('.finished').click();
+                    }, 1500);
+                }
+            })
+        ''')
+        time.sleep(5)
+        if(count > 0):
+            self.ad()
+
     # 刷新并且点击宝箱按钮
     def refresh_player(self):
         # 刷新当前网页
@@ -359,27 +369,43 @@ class HuYa:
         # 宝箱按钮
         self.driver.find_element(
             By.CLASS_NAME, "player-chest-btn").click()
-        boxItem = self.driver.find_element(By.CLASS_NAME, "box-item-4")
 
-        itmes = boxItem.find_elements(By.CLASS_NAME, "item")
-        logging.info('待领取{}个宝箱'.format(len(itmes)))
+        boxItem = self.driver.find_element(By.ID, "box-item-list")
+        itmes = boxItem.find_elements(By.CLASS_NAME, "box-item")
+
+        newItems = []
+        for item in itmes:
+            if item.get_attribute("index") != "102":
+                try:
+                    finished = item.find_element(By.CLASS_NAME, "finished")
+                    newItems.append(finished)
+                except NoSuchElementException: # type: ignore
+                    pass
+
+        logging.info('待领取{}个宝箱'.format(len(newItems)))
+        return len(newItems)
     
     # 看广告领取宝箱
-    def look_ad(self):
+    def look_ad(self, adCount):
         self.refresh_player()
         time.sleep(5)
         adlength = self.driver.execute_script('''
-            //如果有none, 就表示没有可以领取的广告宝箱了
-            return !($('.item .btn').last().attr('style').indexOf('none') > -1);
+            //如果有finished, 就表示可以领取的广告宝箱了
+            return ($('#box-item-list .box-item').last().find('.finished').length == 1);
         ''')
         logging.info('广告宝箱: 宝箱可领取状态 {}'.format(adlength))
         # true就是可以领取
         if adlength:
             self.driver.execute_script('''
-            $('.item .btn').last().click();  
+            $('#box-item-list .box-item').last().find('.finished').click();  
             ''')
             time.sleep(60)
-            self.look_ad()
+            logging.info('adCount: {}'.format(adCount))
+            if adCount <= 7 :
+                # adCount自增加1
+                adCount += 1
+                adCount = self.look_ad(adCount)
+        return adCount; 
         
     # 赠送超级虎粮
     def send_super_gift(self, room_id, number):
