@@ -2,8 +2,13 @@ import requests
 import json
 from gmssl import sm4, func
 import base64
+import traceback
 
 import execjs
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(filename)s [line:%(lineno)d] %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 key = b'fLdJQTGMDsUUTojn'
 
@@ -132,15 +137,22 @@ class Yun:
 
     #加密
     def encrypt(self, inputText):
-            # 读取 JavaScript 文件内容
-            with open("index.js", "r") as file:
-                js_code = file.read()
+        # 读取 JavaScript 文件内容
+        with open("index.js", "r") as file:
+            js_code = file.read()
 
-            # 创建 JavaScript 环境并编译 JavaScript 代码
+        # 创建 JavaScript 环境并编译 JavaScript 代码 处理异常
+        try:
             ctx = execjs.compile(js_code)
+        except Exception as e:
+            logging.error('脚本运行异常。')
+            traceback.print_exc()
+        finally:
+            #logging.info('脚本运行结束。')
+            exit
 
-            # 调用 JavaScript 函数
-            return ctx.call("encrypt", inputText)
+        # 调用 JavaScript 函数
+        return ctx.call("encrypt", inputText)
 
      # 推送消息到手机
     def sendMsg(self, group, title, msg):
