@@ -104,14 +104,30 @@ class HuYa:
 
         time.sleep(5)
 
-        qmdtext = self.statistics()
-
-        # 打卡 发送统计
-        self.sendMsg("qmd", "亲密度统计", qmdtext)
-        self.sendMsg("huliang", "虎粮赠送统计", "本次送出虎粮{}个".format(n))
-
         # 领取宝箱
         self.getTreasure(room_id)
+        #刷新网页
+        self.refresh()
+        time.sleep(5)
+
+        # 宝箱领取完毕后，可以再次送普通虎粮
+        n1 = self.send_hl()
+
+        time.sleep(5)
+        qmdtext = self.statistics()
+        if qmdtext:
+            # 打卡 发送统计
+            self.sendMsg("qmd", "亲密度统计", qmdtext)
+        #计算有送了多少个虎粮
+        num = int(n) + int(n1)
+
+        self.sendMsg("huliang", "虎粮赠送统计", "本次送出虎粮{}个".format(num))
+
+    def refresh(self):
+        # 刷新当前网页
+        self.driver.switch_to.default_content()
+        self.driver.refresh()
+        self.driver.implicitly_wait(2)
 
     # 统计数据
     def statistics(self):
@@ -218,9 +234,7 @@ class HuYa:
 
         logging.info("结束赠送普通虎粮")
         # 刷新当前网页
-        self.driver.switch_to.default_content()
-        self.driver.refresh()
-        self.driver.implicitly_wait(2)
+        self.refresh()
         return num
         # 获取虎粮数量
         # num = item.find_element(By.CLASS_NAME, "num").text
