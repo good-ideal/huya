@@ -59,8 +59,8 @@ class Yun:
             "openId": "+z488ZPgwCtMxRmkq9bzNDSm0ZIPzqpzVpDNmeP3niCC/TnQ+/1mrJZB2W+jvwQa"
         }))
         md5Str = self.md5(encrypt_data['n'])
-        print("MD5: " + md5Str)
-        print(encrypt_data['n'])
+        # print("MD5: " + md5Str)
+        # print(encrypt_data['n'])
 
         # 将十六进制字符串转换为字节类型
         #需要加密的数据
@@ -78,7 +78,7 @@ class Yun:
         # 将加密结果转换为Base64编码
         encrypt_base64 = base64.b64encode(encrypt_value).decode('utf-8')
         
-        print('加密结果(Base64):', encrypt_base64)
+        # print('加密结果(Base64):', encrypt_base64)
 
 
         # # 将明文转换为字节类型
@@ -106,7 +106,7 @@ class Yun:
         headers['sign'] = encrypt_base64
         headers['nonce'] = encrypt_data['nonce']
         headers['timestamp'] = str(encrypt_data['timestamp'])
-        print("SM4: " +  headers['sign'])
+        # print("SM4: " +  headers['sign'])
         # return
         response = requests.request("POST", 'https://gfss.fpsd.unionpay.com/gs-apply/apply/queryGraRecords', headers=headers, data=payload)
         # print(response.text)
@@ -115,8 +115,8 @@ class Yun:
         if(resp['code'] == 200 and ('data' in resp) and len(resp["data"]) > 0):
             text = ''
             for data in resp["data"]:
-                # print(data['graName'])
-                # print('当前进度' + len(data['nodeList']))
+                print(data['graName'] + '当前进度：' + str(len(data['nodeList'])))
+                # print('当前进度：' + str(len(data['nodeList'])))
                 # print(len(data['nodeList']))
                 #获取data['nodeList']有子节点个数
                 if len(data['nodeList']) > 6:
@@ -167,4 +167,4 @@ if __name__ == '__main__':
     yun.search()
     # 输出结果
     
-    exit
+    exit(0)
