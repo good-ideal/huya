@@ -198,7 +198,8 @@ class HuYa:
         # 循环iframes
         for iframe in iframes:
             # 通过iframe路径判断哪一个是背包的iframe
-            print(iframe.get_attribute("src"))
+            # print(iframe.get_attribute("src"))
+            logging.info("iframe: {}".format(iframe.get_attribute("src")))
             if "package" in iframe.get_attribute("src"):
                 logging.info("找到了package: {}".format(iframe.get_attribute("src")))
                 self.driver.switch_to.frame(iframe)
@@ -209,6 +210,7 @@ class HuYa:
                     if "webPackage" in iframe1.get_attribute("src"):
                         logging.info("找到了webpackage: {}".format(iframe1.get_attribute("src")))
                         self.driver.switch_to.frame(iframe1)
+                        break
                 break
             
         # 等渲染完成
@@ -451,7 +453,8 @@ class HuYa:
 
         # aa[1].click()
         for i in range(number):
-            print('当前超级虎粮在列表:{}位'.format(gift_hl_id))
+            logging.info('当前超级虎粮在列表:{}位'.format(gift_hl_id))
+            # print('当前超级虎粮在列表:{}位'.format(gift_hl_id))
             # time.sleep(2)
             if gift_hl_id != -1:
                 time.sleep(2)
@@ -471,7 +474,8 @@ class HuYa:
                     }
                     return 1;
                 ''')
-                print('房间号:{} 赠送第{}个超级虎粮.'.format(room_id, i))
+                logging.info('房间号:{} 赠送第{}个超级虎粮.'.format(room_id, i))
+                # print('房间号:{} 赠送第{}个超级虎粮.'.format(room_id, i))
                 time.sleep(1)
 
     # 获取背包虎粮数量
