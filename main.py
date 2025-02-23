@@ -216,7 +216,8 @@ class HuYa:
         # 等渲染完成
         time.sleep(3)
         packs = self.driver.find_elements(By.CLASS_NAME, "m-gift-item")
-        print("背包数量：{}".format(len(packs)))
+        # print("背包数量：{}".format(len(packs)))
+        logging.info("背包数量：{}".format(len(packs)))
         for index, item in enumerate(packs):
             # 获取物品的名称 判断是虎粮吗 如果是就获取数量，然后赠送
             if "虎粮" in item.text:
