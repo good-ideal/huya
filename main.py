@@ -530,7 +530,7 @@ if __name__ == '__main__':
         logging.info('脚本开始工作。')
         chromedriver = os.getenv('CHROME_DRIVER')  # 读取环境变量
         chrome_options = Options()
-        # chrome_options.add_argument('--headless')  # 无头模式
+        chrome_options.add_argument('--headless')  # 无头模式
         chrome_options.add_argument("--ignore-certificate-errors")  # 忽略证书错误
         chrome_options.add_argument("--disable-popup-blocking")  # 禁用弹出拦截
         chrome_options.add_argument("no-sandbox")  # 取消沙盒模式
