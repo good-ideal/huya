@@ -38,27 +38,28 @@ class HuYa:
         if self.login_check():
             return True
 
-        self.driver.switch_to.frame('UDBSdkLgn_iframe')
-        js = '''
-            document.getElementsByClassName("input-login")[0].click();
-            document.getElementsByClassName("udb-input-account")[0].value = "''' + str(username) + '''";
-            document.getElementsByClassName("udb-input-pw")[0].value = "''' + str(password) + '''";
-            document.getElementById("login-btn").click();
-        '''
-        self.driver.execute_script(js)
-        self.driver.implicitly_wait(2)  # 等待跳转
+        # # self.driver.switch_to.frame('UDBSdkLgn_iframe')
+        # # js = '''
+        # #     document.getElementsByClassName("input-login")[0].click();
+        # #     document.getElementsByClassName("udb-input-account")[0].value = "''' + str(username) + '''";
+        # #     document.getElementsByClassName("udb-input-pw")[0].value = "''' + str(password) + '''";
+        # #     document.getElementById("login-btn").click();
+        # # '''
+        # self.driver.execute_script(js)
+        # self.driver.implicitly_wait(2)  # 等待跳转
         if not self.login_check():
             self.driver.get(self.url_userIndex)
             self.driver.switch_to.frame('UDBSdkLgn_iframe')
-            self.driver.execute_script(
-                'document.getElementsByClassName("quick-icon")[0].click();')
+            # time.sleep(5000)
+            # self.driver.execute_script(
+            #     'document.getElementsByClassName("quick-icon")[0].click();')
             time.sleep(1)
             qr_url = self.driver.execute_script(
                 'return document.getElementById("qr-image").src;')
             print("user:{} login requires authentication, you have to scan the QR code to sign in.\nQR-code url:{}".format(username, qr_url))
             self.get_qr(username, qr_url)
             requests.get(
-                'https://api.day.app/tBDuDKqMZ9EqPC5RojvYdF/虎牙登陆二维码扫码?url={}'.format(qr_url))
+                'https://bark.s6.design/ZdrWZumT8QnPGUsmVjmg9k/虎牙登陆二维码扫码?url={}'.format(qr_url))
             while not self.login_check():
                 time.sleep(0.1)
 
@@ -180,36 +181,47 @@ class HuYa:
 
     # 赠送普通虎粮 可以一次性赠送完成
     def send_hl(self):
+        time.sleep(3)
         logging.info("开始进行赠送普通虎粮")
         num = 0
         # 点击背包按钮
         package = self.driver.find_element(By.ID, "player-package-btn")
         package.click()
+        logging.info("点击按钮：{}".format(package.text))
 
         # 等渲染完成
-        self.driver.implicitly_wait(3)
+        time.sleep(3)
 
         iframes = self.driver.find_elements(By.TAG_NAME, "iframe")
+        logging.info("找到了{}个iframe".format(len(iframes)))
 
         # 循环iframes
         for iframe in iframes:
             # 通过iframe路径判断哪一个是背包的iframe
-            # print(iframe.get_attribute("src"))
-            # 判断iframe中src是否包含webPackage 如果包含就切换到该iframe
-            if "webPackage" in iframe.get_attribute("src"):
+            print(iframe.get_attribute("src"))
+            if "package" in iframe.get_attribute("src"):
+                logging.info("找到了package: {}".format(iframe.get_attribute("src")))
                 self.driver.switch_to.frame(iframe)
+                iframes1 = self.driver.find_elements(By.TAG_NAME, "iframe")
+                logging.info("找到了{}个iframe".format(len(iframes1)))
+                for iframe1 in iframes1:
+                    # 判断iframe中src是否包含webPackage 如果包含就切换到该iframe
+                    if "webPackage" in iframe1.get_attribute("src"):
+                        logging.info("找到了webpackage: {}".format(iframe1.get_attribute("src")))
+                        self.driver.switch_to.frame(iframe1)
                 break
-
-        packs = self.driver.find_elements(By.CLASS_NAME, "m-gift-item p")
-        logging.info("背包虎粮数量：{}".format(len(packs)))
-        # print("背包数量：{}".format(len(packs)))
+            
+        # 等渲染完成
+        time.sleep(3)
+        packs = self.driver.find_elements(By.CLASS_NAME, "m-gift-item")
+        print("背包数量：{}".format(len(packs)))
         for index, item in enumerate(packs):
             # 获取物品的名称 判断是虎粮吗 如果是就获取数量，然后赠送
             if "虎粮" in item.text:
                 count = item.parent.find_element(By.CLASS_NAME, "c-count")
                 # 获取虎粮数量
                 # print("剩余{}: {}".format(item.text, count.text))
-                logging.info("剩余{}: {}".format(item.text, count.text))
+                logging.info("背包虎粮数量：{}: {}".format(item.text, count.text))
                 # 悬浮到按钮上
                 ActionChains(self.driver).move_to_element(item).perform()
                 # 加点延迟，让他完全渲染出来在获取
@@ -518,7 +530,7 @@ if __name__ == '__main__':
         logging.info('脚本开始工作。')
         chromedriver = os.getenv('CHROME_DRIVER')  # 读取环境变量
         chrome_options = Options()
-        chrome_options.add_argument('--headless')  # 无头模式
+        # chrome_options.add_argument('--headless')  # 无头模式
         chrome_options.add_argument("--ignore-certificate-errors")  # 忽略证书错误
         chrome_options.add_argument("--disable-popup-blocking")  # 禁用弹出拦截
         chrome_options.add_argument("no-sandbox")  # 取消沙盒模式
