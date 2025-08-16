@@ -632,9 +632,9 @@ if __name__ == '__main__':
         hy = HuYa(driver)
         hy.login(username="cailong", password="cailong")
         # 先去自动签到
-        # hy.task_center()
+        hy.task_center()
         # 北枫的直播号572329 虎粮数
-        hy.into_room(572329, 50)
+        # hy.into_room(572329, 50)
     except Exception as e:
         logging.error('脚本运行异常。')
         traceback.print_exc()
