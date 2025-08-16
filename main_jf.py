@@ -71,6 +71,24 @@ class HuYa:
             driver.execute_script("window.stop()")
             logging.info('进入任务中心出现异常。')
             traceback.print_exc()
+        
+        
+        logging.info("任务中心: 开始领取整点积分。")
+        # time.sleep(99999)
+        # 领取整点积分
+        everyHourTask = self.driver.find_element(By.CSS_SELECTOR, ".task-item.every-hour-task")
+        if everyHourTask:
+            try:
+                button = everyHourTask.find_element(By.TAG_NAME, "button")
+                if button and button.text == "领取":
+                    # 点击领取按钮
+                    button.click()
+                    logging.info("任务中心: 整点积分领取成功。")
+            except NoSuchElementException:
+                logging.info("任务中心: 整点积分没有领取按钮，跳过。")
+        time.sleep(3)
+
+
         giftList = self.driver.find_element(By.CLASS_NAME, "gift-list-wrap")
         list = giftList.find_elements(By.TAG_NAME, "li")
         logging.info("任务中心: 找到{}个".format(len(list)))
@@ -90,20 +108,6 @@ class HuYa:
                 time.sleep(2)
                 break
         logging.info("任务中心: 自动签到完成。")
-        logging.info("任务中心: 开始领取整点积分。")
-        # time.sleep(99999)
-        # 领取整点积分
-        everyHourTask = self.driver.find_element(By.CSS_SELECTOR, ".task-item.every-hour-task")
-        if everyHourTask:
-            try:
-                button = everyHourTask.find_element(By.TAG_NAME, "button")
-                if button and button.text == "领取":
-                    # 点击领取按钮
-                    button.click()
-                    logging.info("任务中心: 整点积分领取成功。")
-            except NoSuchElementException:
-                logging.info("任务中心: 整点积分没有领取按钮，跳过。")
-        # time.sleep(3)
 
     # 停止播放
     def stopPlayer(self):
