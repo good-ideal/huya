@@ -102,8 +102,13 @@ class HuYa:
                 continue
             # 如果button存在
             if button and button.text == "签到":
-                # 点击签到按钮
-                button.click()
+                try:
+                    # 点击签到按钮
+                    button.click()
+                except Exception:
+                    self.sendMsg("error", "签到异常", "第{}个任务执行签到异常".format(index + 1))
+                    logging.info("签到失败: 第{}个: 签到异常了".format(index + 1))
+                    continue
                 logging.info("开始签到: 第{}个任务: {} 已经完成".format(index + 1, item.text))
                 time.sleep(2)
                 break
@@ -615,7 +620,7 @@ if __name__ == '__main__':
         chrome_options.add_argument("disable-translate")  # 禁用翻译
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--hide-scrollbars")  # 隐藏滚动条, 应对一些特殊页面
-        chrome_options.add_argument("blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
+        # chrome_options.add_argument("blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
 
         # 如果希望下次使用的时候不登录，可以把chrome data保存，但是只能同一时间同一个浏览器用
         # 如果有多个用户也可以保存多个chrome data
