@@ -84,7 +84,7 @@ class HuYa:
                         if button :
                             logging.info("任务中心: {}".format(button.text))
                             # 点击领取按钮
-                            # button.click()
+                            button.click()
                             logging.info("任务中心: 签到已经完成")
                             break
             except NoSuchElementException:
@@ -106,7 +106,7 @@ class HuYa:
                         button = taskItems.find_element(By.TAG_NAME, "button")
                         if button and button.text == "领取":
                             # 点击领取按钮
-                            # button.click()
+                            button.click()
                             logging.info("任务中心: 整点积分领取成功。")
                             break
             except NoSuchElementException:
