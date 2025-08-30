@@ -84,35 +84,15 @@ class HuYa:
                         if button :
                             logging.info("任务中心: {}".format(button.text))
                             # 点击领取按钮
-                            button.click()
+                            # button.click()
                             logging.info("任务中心: 签到已经完成")
                             break
             except NoSuchElementException:
                 logging.info("任务中心: 整点积分没有领取按钮，跳过。")
+                self.sendMsg("error", "签到异常", "任务执行签到异常")
 
-        # giftList = self.driver.find_element(By.CLASS_NAME, "gift-list-wrap")
-        # list = giftList.find_elements(By.TAG_NAME, "li")
-        # logging.info("任务中心: 找到{}个".format(len(list)))
-        # for index, item in enumerate(list):
-        #     logging.info("开始签到: 第{}个: {}".format(index + 1, item.text))
-        #     button = None
-        #     try:
-        #         button = item.find_element(By.TAG_NAME, "button")
-        #     except NoSuchElementException:
-        #         logging.info("开始签到: 第{}个: 没有签到按钮，跳过".format(index + 1))
-        #         continue
-        #     # 如果button存在
-        #     if button and button.text == "签到":
-        #         # 点击签到按钮
-        #         button.click()
-        #         logging.info("开始签到: 第{}个任务: {} 已经完成".format(index + 1, item.text))
-        #         time.sleep(2)
-        #         break
         logging.info("任务中心: 自动签到完成。")
         logging.info("任务中心: 开始领取整点积分。")
-        # time.sleep(99999)
-        # 领取整点积分
-        # everyHourTask = self.driver.find_element(By.CSS_SELECTOR, ".task-item.every-hour-task")
 
         time.sleep(2)
 
@@ -126,19 +106,22 @@ class HuYa:
                         button = taskItems.find_element(By.TAG_NAME, "button")
                         if button and button.text == "领取":
                             # 点击领取按钮
-                            button.click()
+                            # button.click()
                             logging.info("任务中心: 整点积分领取成功。")
                             break
             except NoSuchElementException:
                 logging.info("任务中心: 整点积分没有领取按钮，跳过。")
-        # time.sleep(3)
+                self.sendMsg("error", "整点领金币", "整点领金币异常")
+
+
+        logging.info("任务中心: 自动签到完成。")
 
         header = self.driver.find_element(By.CLASS_NAME, "sign-gold-wrap")
         
         signDay = header.find_element(By.TAG_NAME, "h3").text.replace('\n', ' ')
         
         logging.info("任务中心: " + signDay)
-        # self.sendMsg("qiandao", "签到成功", signDay)
+        self.sendMsg("qiandao", "签到成功", signDay)
 
 
     # 停止播放
@@ -647,7 +630,7 @@ if __name__ == '__main__':
         chrome_options.add_argument("disable-translate")  # 禁用翻译
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--hide-scrollbars")  # 隐藏滚动条, 应对一些特殊页面
-        chrome_options.add_argument("blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
+        # chrome_options.add_argument("blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
 
         # 如果希望下次使用的时候不登录，可以把chrome data保存，但是只能同一时间同一个浏览器用
         # 如果有多个用户也可以保存多个chrome data
