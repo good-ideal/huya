@@ -109,20 +109,32 @@ class HuYa:
                             # 点击领取按钮
                             button.click()
                             logging.info("任务中心: 签到已经完成")
+
+
+                            # 因为点击签到后，会自动跳转到一个扫码页，所以我需要在跳转回来
+                            time.sleep(5)
+                            self.driver.get("https://hd.huya.com/h5/welfare_center/index.html")
+                            time.sleep(5)
+
+                            header = self.driver.find_element(By.CLASS_NAME, "sign-gold-wrap")
+        
+                            signDay = header.find_element(By.TAG_NAME, "h3").text.replace('\n', ' ')
+                            
+                            logging.info("任务中心: " + signDay)
+                            self.sendMsg("qiandao", "签到成功", signDay)
                             break
             except Exception:
                 logging.info("任务中心: 整点积分没有领取按钮，跳过。")
                 self.sendMsg("error", "签到异常", "任务执行签到异常")
 
+        # logging.info("任务中心: 自动签到完成。")
 
-        logging.info("任务中心: 自动签到完成。")
-
-        header = self.driver.find_element(By.CLASS_NAME, "sign-gold-wrap")
+        # header = self.driver.find_element(By.CLASS_NAME, "sign-gold-wrap")
         
-        signDay = header.find_element(By.TAG_NAME, "h3").text.replace('\n', ' ')
+        # signDay = header.find_element(By.TAG_NAME, "h3").text.replace('\n', ' ')
         
-        logging.info("任务中心: " + signDay)
-        self.sendMsg("qiandao", "签到成功", signDay)
+        # logging.info("任务中心: " + signDay)
+        # self.sendMsg("qiandao", "签到成功", signDay)
 
 
     # 停止播放
