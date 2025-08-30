@@ -71,39 +71,75 @@ class HuYa:
             driver.execute_script("window.stop()")
             logging.info('进入任务中心出现异常。')
             traceback.print_exc()
-        giftList = self.driver.find_element(By.CLASS_NAME, "gift-list-wrap")
-        list = giftList.find_elements(By.TAG_NAME, "li")
-        logging.info("任务中心: 找到{}个".format(len(list)))
-        for index, item in enumerate(list):
-            logging.info("开始签到: 第{}个: {}".format(index + 1, item.text))
-            button = None
+        
+        signBox = self.driver.find_element(By.ID, "sign-box-list")
+        if signBox:
             try:
-                button = item.find_element(By.TAG_NAME, "button")
+                # taskItems 可能有多个需要循环判断text中是否包含"整点积分"
+                lis = signBox.find_elements(By.TAG_NAME, "li")
+                for li in lis:
+                    # logging.info("任务中心: 签到任务: {}".format(li.text))
+                    if any(keyword in li.text for keyword in ["签到"]):
+                        button = li.find_element(By.TAG_NAME, "button")
+                        if button :
+                            logging.info("任务中心: {}".format(button.text))
+                            # 点击领取按钮
+                            button.click()
+                            logging.info("任务中心: 签到已经完成")
+                            break
             except NoSuchElementException:
-                logging.info("开始签到: 第{}个: 没有签到按钮，跳过".format(index + 1))
-                continue
-            # 如果button存在
-            if button and button.text == "签到":
-                # 点击签到按钮
-                button.click()
-                logging.info("开始签到: 第{}个任务: {} 已经完成".format(index + 1, item.text))
-                time.sleep(2)
-                break
+                logging.info("任务中心: 整点积分没有领取按钮，跳过。")
+
+        # giftList = self.driver.find_element(By.CLASS_NAME, "gift-list-wrap")
+        # list = giftList.find_elements(By.TAG_NAME, "li")
+        # logging.info("任务中心: 找到{}个".format(len(list)))
+        # for index, item in enumerate(list):
+        #     logging.info("开始签到: 第{}个: {}".format(index + 1, item.text))
+        #     button = None
+        #     try:
+        #         button = item.find_element(By.TAG_NAME, "button")
+        #     except NoSuchElementException:
+        #         logging.info("开始签到: 第{}个: 没有签到按钮，跳过".format(index + 1))
+        #         continue
+        #     # 如果button存在
+        #     if button and button.text == "签到":
+        #         # 点击签到按钮
+        #         button.click()
+        #         logging.info("开始签到: 第{}个任务: {} 已经完成".format(index + 1, item.text))
+        #         time.sleep(2)
+        #         break
         logging.info("任务中心: 自动签到完成。")
         logging.info("任务中心: 开始领取整点积分。")
         # time.sleep(99999)
         # 领取整点积分
-        everyHourTask = self.driver.find_element(By.CSS_SELECTOR, ".task-item.every-hour-task")
+        # everyHourTask = self.driver.find_element(By.CSS_SELECTOR, ".task-item.every-hour-task")
+
+        time.sleep(2)
+
+        everyHourTask = self.driver.find_element(By.ID, "task-list-content-日常金币任务")
         if everyHourTask:
             try:
-                button = everyHourTask.find_element(By.TAG_NAME, "button")
-                if button and button.text == "领取":
-                    # 点击领取按钮
-                    button.click()
-                    logging.info("任务中心: 整点积分领取成功。")
+                # taskItems 可能有多个需要循环判断text中是否包含"整点积分"
+                taskItemsList = everyHourTask.find_elements(By.CLASS_NAME, "task-item")
+                for taskItems in taskItemsList:
+                    if any(keyword in taskItems.text for keyword in ["整点领金币"]):
+                        button = taskItems.find_element(By.TAG_NAME, "button")
+                        if button and button.text == "领取":
+                            # 点击领取按钮
+                            button.click()
+                            logging.info("任务中心: 整点积分领取成功。")
+                            break
             except NoSuchElementException:
                 logging.info("任务中心: 整点积分没有领取按钮，跳过。")
         # time.sleep(3)
+
+        header = self.driver.find_element(By.CLASS_NAME, "sign-gold-wrap")
+        
+        signDay = header.find_element(By.TAG_NAME, "h3").text.replace('\n', ' ')
+        
+        logging.info("任务中心: " + signDay)
+        # self.sendMsg("qiandao", "签到成功", signDay)
+
 
     # 停止播放
     def stopPlayer(self):
