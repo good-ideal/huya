@@ -72,7 +72,7 @@ class HuYa:
             logging.info('进入任务中心出现异常。')
             traceback.print_exc()
 
-
+        time.sleep(2)
         everyHourTask = self.driver.find_element(By.ID, "task-list-content-日常金币任务")
         if everyHourTask:
             try:
@@ -619,9 +619,14 @@ class HuYa:
 if __name__ == '__main__':
     try:
         logging.info('脚本开始工作。')
+
+        # 配置模拟设备为 iPhone 12
+        mobile_emulation = { "deviceName": "iPhone 12 Pro" }
+
         chromedriver = os.getenv('CHROME_DRIVER')  # 读取环境变量
         chrome_options = Options()
         chrome_options.add_argument('--headless')  # 无头模式
+        chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)  # 设置设备模拟
         chrome_options.add_argument("--ignore-certificate-errors")  # 忽略证书错误
         chrome_options.add_argument("--disable-popup-blocking")  # 禁用弹出拦截
         chrome_options.add_argument("no-sandbox")  # 取消沙盒模式
