@@ -71,6 +71,26 @@ class HuYa:
             driver.execute_script("window.stop()")
             logging.info('进入任务中心出现异常。')
             traceback.print_exc()
+
+
+        everyHourTask = self.driver.find_element(By.ID, "task-list-content-日常金币任务")
+        if everyHourTask:
+            try:
+                # taskItems 可能有多个需要循环判断text中是否包含"整点积分"
+                taskItemsList = everyHourTask.find_elements(By.CLASS_NAME, "task-item")
+                for taskItems in taskItemsList:
+                    if any(keyword in taskItems.text for keyword in ["整点领金币"]):
+                        button = taskItems.find_element(By.TAG_NAME, "button")
+                        if button and button.text == "领取":
+                            # 点击领取按钮
+                            button.click()
+                            logging.info("任务中心: 整点积分领取成功。")
+                            break
+            except Exception:
+                logging.info("任务中心: 整点积分没有领取按钮，跳过。")
+                self.sendMsg("error", "整点领金币", "整点领金币异常")
+        logging.info("任务中心: 整点积分完成。")
+        time.sleep(2)
         
         signBox = self.driver.find_element(By.ID, "sign-box-list")
         if signBox:
@@ -87,32 +107,9 @@ class HuYa:
                             button.click()
                             logging.info("任务中心: 签到已经完成")
                             break
-            except NoSuchElementException:
+            except Exception:
                 logging.info("任务中心: 整点积分没有领取按钮，跳过。")
                 self.sendMsg("error", "签到异常", "任务执行签到异常")
-
-        logging.info("任务中心: 自动签到完成。")
-        logging.info("任务中心: 开始领取整点积分。")
-
-        time.sleep(2)
-
-        everyHourTask = self.driver.find_element(By.ID, "task-list-content-日常金币任务")
-        if everyHourTask:
-            try:
-                # taskItems 可能有多个需要循环判断text中是否包含"整点积分"
-                taskItemsList = everyHourTask.find_elements(By.CLASS_NAME, "task-item")
-                for taskItems in taskItemsList:
-                    if any(keyword in taskItems.text for keyword in ["整点领金币"]):
-                        button = taskItems.find_element(By.TAG_NAME, "button")
-                        if button and button.text == "领取":
-                            # 点击领取按钮
-                            button.click()
-                            logging.info("任务中心: 整点积分领取成功。")
-                            break
-            except NoSuchElementException:
-                logging.info("任务中心: 整点积分没有领取按钮，跳过。")
-                self.sendMsg("error", "整点领金币", "整点领金币异常")
-
 
         logging.info("任务中心: 自动签到完成。")
 
