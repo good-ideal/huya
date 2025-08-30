@@ -91,6 +91,9 @@ class HuYa:
                 self.sendMsg("error", "整点领金币", "整点领金币异常")
         logging.info("任务中心: 整点积分完成。")
         time.sleep(2)
+
+        #刷新网页
+        self.refresh()
         
         signBox = self.driver.find_element(By.ID, "sign-box-list")
         if signBox:
@@ -110,6 +113,7 @@ class HuYa:
             except Exception:
                 logging.info("任务中心: 整点积分没有领取按钮，跳过。")
                 self.sendMsg("error", "签到异常", "任务执行签到异常")
+
 
         logging.info("任务中心: 自动签到完成。")
 
